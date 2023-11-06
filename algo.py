@@ -32,7 +32,7 @@ def solve(init_state, init_location, method):
          ...
 
     elif method == 'BiBFS':
-        ...
+        return bi_bfs(init_state)
     
     else:
         return []
@@ -66,4 +66,55 @@ def idfs(startState):
             depth_limit += 1
 
 def to_tuple(array):
-    return tuple(map(tuple, array))                   
+    return tuple(map(tuple, array))      
+
+def bi_bfs(startState):
+    frontier1 = util.Queue() #starts from scrambeled state
+    frontier2 = util.Queue() #starts from goal state
+    explored1 = dict()
+    explored2 = dict()
+    actions1 = []
+    actions2= []
+    frontier1.push((startState, actions1))
+    frontier2.push((solved_state(), actions2))
+
+    while not frontier1.isEmpty() or not frontier2.isEmpty():
+        curr_state1, actions1 = frontier1.pop()
+        curr_state2, actions2 = frontier2.pop()
+
+        if np.array_equiv(curr_state1,solved_state) and np.array_equiv(curr_state2,solved_state):
+            return []
+        if to_tuple(curr_state1) in explored2: #curr_state1 is the similar state in two bfs searches
+                return merge_actions(actions1, explored2[to_tuple(curr_state1)])
+        
+        if to_tuple(curr_state2) in explored1: #curr_state2 is the similar state in two bfs searches
+                # print(explored1[to_tuple(curr_state2)])
+                # print("----------------------------------------")
+                # print(curr_state2)
+                return merge_actions(explored1[to_tuple(curr_state2)], actions2)
+
+        if  to_tuple(curr_state1) not in explored1:
+            explored1[to_tuple(curr_state1)] = actions1
+            for i in range(12):
+                nextState1 = next_state(curr_state1,i+1)
+                if to_tuple(nextState1) not in explored1:
+                    frontier1.push((nextState1, actions1+[i+1]))
+            
+        if to_tuple(curr_state2) not in explored2:
+            explored2[to_tuple(curr_state2)] = actions2
+            for i in range(12):
+                nextState2 = next_state(curr_state2,i+1)
+                if to_tuple(nextState2) not in explored2:
+                    frontier2.push((nextState2, actions2+[i+1]))
+                      
+    return []  
+
+def merge_actions(actions1, actions2):
+    actions2 = actions2[::-1] #reversing actions form goal state to the similar state we found
+    for i in range(len(actions2)):
+        if actions2[i] <= 6:
+            actions2[i] += 6
+        else:
+            actions2[i] -= 6    
+
+    return actions1 + actions2
