@@ -1,6 +1,8 @@
 import numpy as np
+from location import next_location, solved_location
 from state import next_state, solved_state
 from textures import util
+import heapq
 
 
 def solve(init_state, init_location, method):
@@ -29,7 +31,7 @@ def solve(init_state, init_location, method):
         return idfs(init_state)
 
     elif method == 'A*':
-         ...
+        return aStar(init_state,init_location)
 
     elif method == 'BiBFS':
         return bi_bfs(init_state)
@@ -82,7 +84,7 @@ def bi_bfs(startState):
         curr_state1, actions1 = frontier1.pop()
         curr_state2, actions2 = frontier2.pop()
 
-        if np.array_equiv(curr_state1,solved_state) and np.array_equiv(curr_state2,solved_state):
+        if np.array_equiv(curr_state1,solved_state()) and np.array_equiv(curr_state2,solved_state()):
             return []
         if to_tuple(curr_state1) in explored2: #curr_state1 is the similar state in two bfs searches
                 return merge_actions(actions1, explored2[to_tuple(curr_state1)])
@@ -108,6 +110,11 @@ def bi_bfs(startState):
 
 def merge_actions(actions1, actions2):
     actions2 = actions2[::-1] #reversing actions form goal state to the similar state we found
+
+    # action_dict = {1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6',
+    #                7: 'q', 8: 'w', 9: 'e', 10: 'r', 11: 't', 12: 'y'}
+
+    #we have to change scrambling actions in actions2 array, to their corespondant solving actions
     for i in range(len(actions2)):
         if actions2[i] <= 6:
             actions2[i] += 6
@@ -115,3 +122,59 @@ def merge_actions(actions1, actions2):
             actions2[i] -= 6    
 
     return actions1 + actions2
+
+def aStar(startState,startLocation):
+    #search the node that has the lowest combined cost and heuristic first.
+    explored = dict() # state -> cost
+    actions = []
+    frontier = util.PriorityQueue()
+    #cost = heuristic + cost from init state to current state -> -priority
+    frontier.push( (startState, startLocation, heuristic(startLocation)+len(actions), actions), heuristic(startLocation)+len(actions) ) 
+
+    while not frontier.isEmpty():
+        (curr_state, curr_location, curr_cost, actions) = frontier.pop()
+        #pop in priorityQueue -> heappop : Pop the smallest item off the heap, maintaining the heap invariant.
+
+        if np.array_equiv(curr_state,solved_state()):
+            return actions
+        elif to_tuple(curr_state) not in explored:
+            explored[to_tuple(curr_state)] = curr_cost
+        
+            for i in range(12):
+                nextState = next_state(curr_state, i+1)
+                nextLocation = next_location(curr_location, i+1)
+                nextCost = heuristic(nextLocation) + len(actions)+1
+
+                if to_tuple(nextState) not in explored:
+                  frontier.push( ((nextState,nextLocation,nextCost, actions+[i+1])) , nextCost )
+
+                else:
+                #if this state was already explored, check the cost, if old one is more than new state, add new to frontier
+                    old_cost = explored[nextState]
+                    if(nextCost < old_cost):
+                        # If item already in priority queue with higher priority, update its priority and rebuild the heap.
+                        #update in util.priorityQueue:
+                        # If item already in priority queue with higher priority, update its priority and rebuild the heap.
+                        # If item already in priority queue with equal or lower priority, do nothing.
+                        # If item not in priority queue, do the same thing as self.push.
+                       frontier.update(((nextState,nextLocation,nextCost, actions+[i+1])),nextCost)   
+
+    return []
+
+def heuristic(location):
+    solvedLocation = solved_location()
+    total = 0
+    for i in range(2):
+        for j in range(2):
+            for k in range(2):
+              curr_value = location[i,j,k] #the number assign to each little cube
+              #iterating through solved location to find the little cube's number (cube_value) in the solved cube)
+              for x in range(2):
+                    for y in range(2):
+                        for z in range(2):
+                            if(solvedLocation[x,y,z] == curr_value):
+                                total += (abs(x-i) + abs(y-j) + abs(z-k))
+                                break
+
+    return total/4
+
