@@ -2,8 +2,6 @@ import numpy as np
 from location import next_location, solved_location
 from state import next_state, solved_state
 from textures import util
-import heapq
-
 
 def solve(init_state, init_location, method):
     """
@@ -133,7 +131,7 @@ def aStar(startState,startLocation):
 
     while not frontier.isEmpty():
         (curr_state, curr_location, curr_cost, actions) = frontier.pop()
-        #pop in priorityQueue -> heappop : Pop the smallest item off the heap, maintaining the heap invariant.
+        #pop in util.priorityQueue -> heappop : Pop the smallest item off the heap, maintaining the heap invariant.
 
         if np.array_equiv(curr_state,solved_state()):
             return actions
@@ -146,18 +144,18 @@ def aStar(startState,startLocation):
                 nextCost = heuristic(nextLocation) + len(actions)+1
 
                 if to_tuple(nextState) not in explored:
-                  frontier.push( ((nextState,nextLocation,nextCost, actions+[i+1])) , nextCost )
+                  frontier.push( ((nextState,nextLocation,nextCost, actions+[i+1])), nextCost)
 
                 else:
                 #if this state was already explored, check the cost, if old one is more than new state, add new to frontier
-                    old_cost = explored[nextState]
+                    old_cost = explored[to_tuple(nextState)]
+                     # If item already in priority queue with higher priority, update its priority and rebuild the heap.
                     if(nextCost < old_cost):
-                        # If item already in priority queue with higher priority, update its priority and rebuild the heap.
                         #update in util.priorityQueue:
                         # If item already in priority queue with higher priority, update its priority and rebuild the heap.
                         # If item already in priority queue with equal or lower priority, do nothing.
                         # If item not in priority queue, do the same thing as self.push.
-                       frontier.update(((nextState,nextLocation,nextCost, actions+[i+1])),nextCost)   
+                       frontier.update(((nextState,nextLocation,nextCost, actions+[i+1])), nextCost)   
 
     return []
 
