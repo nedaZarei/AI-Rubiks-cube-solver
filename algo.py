@@ -88,9 +88,6 @@ def bi_bfs(startState):
                 return merge_actions(actions1, explored2[to_tuple(curr_state1)])
         
         if to_tuple(curr_state2) in explored1: #curr_state2 is the similar state in two bfs searches
-                # print(explored1[to_tuple(curr_state2)])
-                # print("----------------------------------------")
-                # print(curr_state2)
                 return merge_actions(explored1[to_tuple(curr_state2)], actions2)
 
         if  to_tuple(curr_state1) not in explored1:
