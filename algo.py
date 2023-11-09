@@ -112,19 +112,16 @@ def aStar(startState,startLocation):
     return []
 
 def heuristic(location):
-    solvedLocation = solved_location()
     total = 0
+    solved_xyz = { 1:[0,0,0] , 2:[0,0,1], 3:[0,1,0], 4:[0,1,1]
+                   ,5:[1,0,0] , 6:[1,0,1], 7:[1,1,0], 8:[1,1,1]}
     for i in range(2):
         for j in range(2):
             for k in range(2):
               curr_value = location[i,j,k] #the number assign to each little cube
-              #iterating through solved location to find the little cube's number (cube_value) in the solved cube
-              for x in range(2):
-                    for y in range(2):
-                        for z in range(2):
-                            if(solvedLocation[x,y,z] == curr_value):
-                                total += (abs(x-i) + abs(y-j) + abs(z-k))
-                                break
+              #getting little cube's number's (curr_value) location(x,y,z) in the solved cube
+              xyz = solved_xyz.get(curr_value)          
+              total += (abs(xyz[0]-i) + abs(xyz[1]-j) + abs(xyz[2]-k))
 
     return total/4
 
