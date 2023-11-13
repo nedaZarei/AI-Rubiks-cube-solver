@@ -32,12 +32,11 @@ def solve(init_state, init_location, method):
     
 def idfs(startState):
        depth_limit = 1
-       expanded_nodes = 0
        while True:
             explored = set()
             actions = []
             frontier = util.Stack()
-
+            expanded_nodes = 0
             state_with_layer_num = (startState, 0)
             frontier.push((state_with_layer_num, actions))
 
