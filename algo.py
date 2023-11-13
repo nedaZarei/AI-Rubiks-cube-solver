@@ -50,12 +50,12 @@ def idfs(startState):
                     return actions
                 elif layer == depth_limit:
                     continue
-                elif to_tuple(curr_state) not in explored:
-                    explored.add(to_tuple(curr_state))
+                elif (to_tuple(curr_state),layer) not in explored:
+                    explored.add((to_tuple(curr_state) , layer) )
 
                     for i in range(12):
-                         nextState = next_state(curr_state,i+1)
-                         if to_tuple(nextState) not in explored:
+                        nextState = next_state(curr_state,i+1)
+                        if (to_tuple(nextState),layer+1) not in explored:
                             frontier.push(((nextState, layer + 1), actions+[i+1]))
 
             depth_limit += 1      
@@ -137,7 +137,7 @@ def bi_bfs(startState):
     frontier1.push((startState, actions1))
     frontier2.push((solved_state(), actions2))
     pushed1[to_tuple(startState)] = []
-    pushed2[to_tuple(solved_state())] = []
+    pushed2[solved_state()] = []
     expanded_nodes = 0
 
     while not frontier1.isEmpty() or not frontier2.isEmpty():
@@ -161,7 +161,7 @@ def bi_bfs(startState):
                 nextState1 = next_state(curr_state1,i+1)
                 if to_tuple(nextState1) not in explored1:
                     frontier1.push((nextState1, actions1+[i+1]))
-                    pushed1[ to_tuple(nextState1)] = actions1+[i+1]
+                    pushed1[to_tuple(nextState1)] = actions1+[i+1]
             
         if to_tuple(curr_state2) not in explored2:
             explored2.add(to_tuple(curr_state2))
