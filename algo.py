@@ -128,12 +128,16 @@ def heuristic(location):
 def bi_bfs(startState):
     frontier1 = util.Queue() #starts from scrambeled state
     frontier2 = util.Queue() #starts from goal state
-    explored1 = dict()
-    explored2 = dict()
+    explored1 = set()
+    explored2 = set()
     actions1 = []
     actions2 = []
+    pushed1 = dict() #stores all nodes that were pushed in frontier with their actions
+    pushed2 = dict()
     frontier1.push((startState, actions1))
     frontier2.push((solved_state(), actions2))
+    pushed1[to_tuple(startState)] = []
+    pushed2[to_tuple(solved_state())] = []
     expanded_nodes = 0
 
     while not frontier1.isEmpty() or not frontier2.isEmpty():
@@ -141,29 +145,31 @@ def bi_bfs(startState):
         curr_state2, actions2 = frontier2.pop()
         expanded_nodes += 2
 
-        if to_tuple(curr_state1) in explored2: #curr_state1 is the similar state in two bfs searches
-                actions =  merge_actions(actions1, explored2[to_tuple(curr_state1)])
-                print_info({**explored1, **explored2}, actions , expanded_nodes)
+        if to_tuple(curr_state1) in pushed2: #curr_state1 is the similar state in two bfs searches
+                actions =  merge_actions(actions1, pushed2[to_tuple(curr_state1)])
+                print_info(explored1.union(explored2), actions , expanded_nodes)
                 return actions
         
-        if to_tuple(curr_state2) in explored1: #curr_state2 is the similar state in two bfs searches
-                actions =  merge_actions(explored1[to_tuple(curr_state2)], actions2)
-                print_info({**explored1, **explored2}, actions , expanded_nodes)
+        if to_tuple(curr_state2) in pushed1: #curr_state2 is the similar state in two bfs searches
+                actions =  merge_actions(pushed1[to_tuple(curr_state2)], actions2)
+                print_info(explored1.union(explored2), actions , expanded_nodes)
                 return actions
 
         if  to_tuple(curr_state1) not in explored1:
-            explored1[to_tuple(curr_state1)] = actions1
+            explored1.add(to_tuple(curr_state1))
             for i in range(12):
                 nextState1 = next_state(curr_state1,i+1)
                 if to_tuple(nextState1) not in explored1:
                     frontier1.push((nextState1, actions1+[i+1]))
+                    pushed1[ to_tuple(nextState1)] = actions1+[i+1]
             
         if to_tuple(curr_state2) not in explored2:
-            explored2[to_tuple(curr_state2)] = actions2
+            explored2.add(to_tuple(curr_state2))
             for i in range(12):
                 nextState2 = next_state(curr_state2,i+1)
                 if to_tuple(nextState2) not in explored2:
                     frontier2.push((nextState2, actions2+[i+1]))
+                    pushed2[ to_tuple(nextState2)] = actions2+[i+1]
                       
     return []  
 
