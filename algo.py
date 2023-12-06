@@ -136,7 +136,7 @@ def bi_bfs(startState):
     frontier1.push((startState, actions1))
     frontier2.push((solved_state(), actions2))
     pushed1[to_tuple(startState)] = []
-    pushed2[solved_state()] = []
+    pushed2[to_tuple(solved_state())] = []
     expanded_nodes = 0
 
     while not frontier1.isEmpty() or not frontier2.isEmpty():
